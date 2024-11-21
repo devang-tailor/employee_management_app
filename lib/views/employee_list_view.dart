@@ -1,4 +1,5 @@
 import 'package:employee_management_app/constants/string_constants.dart';
+import 'package:employee_management_app/models/employee_adapter.dart';
 import 'package:employee_management_app/viewmodels/employee_cubit.dart';
 import 'package:employee_management_app/viewmodels/employee_state.dart';
 import 'package:flutter/material.dart';
@@ -45,9 +46,12 @@ class _EmployeeListViewState extends State<EmployeeListView> {
             final currentEmployees = state.employees
                 .where((employee) => employee.endDate == null)
                 .toList();
+            print('CurrentEmployee: ${currentEmployees.length}');
             final previousEmployees = state.employees
                 .where((employee) => employee.endDate != null)
                 .toList();
+            print('PreviousEmployee: ${previousEmployees.length}');
+
 
             if (currentEmployees.isEmpty && previousEmployees.isEmpty) {
               return Center(
@@ -66,9 +70,12 @@ class _EmployeeListViewState extends State<EmployeeListView> {
                             color: Colors.blueAccent,
                             fontSize: 18, fontWeight: FontWeight.bold)),
                   ),
-                  ...currentEmployees.map((employee) {
+                  ...currentEmployees.asMap().entries.map((entry) {
+                    final int mappedIndex = entry.key;
+                    final Employee employee = entry.value;
                     return Dismissible(
-                      key: Key(employee.id.toString()),
+
+                      key: Key(employee.id.toString() ??  'fallback_key'),
                       // Unique key for each employee
                       background: Container(
                         color: Colors.red,
@@ -81,11 +88,11 @@ class _EmployeeListViewState extends State<EmployeeListView> {
                       ),
                       direction: DismissDirection.endToStart,
                       // Swipe from right to left
-                      onDismissed: (direction) {
+/*                      onDismissed: (direction) {
                         // Remove the employee from the list and show a snackbar
                         context
                             .read<EmployeeCubit>()
-                            .deleteEmployee(employee.id!);
+                            .deleteEmployee(employee.id ?? -1);
 
                         // Show snackbar with undo option
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -98,6 +105,27 @@ class _EmployeeListViewState extends State<EmployeeListView> {
                                 context
                                     .read<EmployeeCubit>()
                                     .addEmployee(employee);
+                              },
+                            ),
+                          ),
+                        );
+                      },*/
+                      onDismissed: (direction) {
+                        // Get the current index of the employee
+                        // final int index = mappedIndex;
+
+                        // Remove the employee from the list and show a snackbar
+                        context.read<EmployeeCubit>().deleteEmployee(employee.id ?? -1);
+
+                        // Show snackbar with undo option
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('${employee.name} deleted'),
+                            action: SnackBarAction(
+                              label: 'Undo',
+                              onPressed: () {
+                                // You need to implement the logic to add the employee back
+                                context.read<EmployeeCubit>().addEmployee(employee);
                               },
                             ),
                           ),
@@ -120,11 +148,12 @@ class _EmployeeListViewState extends State<EmployeeListView> {
                           ],
                         ),
                         onTap: () {
+                          // print('mapp index $mappedIndex');
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  AddEditEmployeeView(employee: employee),
+                                  AddEditEmployeeView(employee: employee, index:mappedIndex),
                             ),
                           );
                         },
@@ -142,7 +171,10 @@ class _EmployeeListViewState extends State<EmployeeListView> {
                           color: Colors.blueAccent,
                             fontSize: 18, fontWeight: FontWeight.bold)),
                   ),
-                  ...previousEmployees.map((employee) {
+                  ...previousEmployees.asMap().entries.map((entry) {
+                    final int mappedIndex = entry.key;
+                    final Employee employee = entry.value;
+
                     return Dismissible(
                       key: Key(employee.id.toString()),
                       // Unique key for each employee
@@ -158,10 +190,11 @@ class _EmployeeListViewState extends State<EmployeeListView> {
                       direction: DismissDirection.endToStart,
                       // Swipe from right to left
                       onDismissed: (direction) {
+                        print('employee id ${employee.id}');
 
                         context
                             .read<EmployeeCubit>()
-                            .deleteEmployee(employee.id!);
+                            .deleteEmployee(employee.id ?? -1);
 
 
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -199,7 +232,7 @@ class _EmployeeListViewState extends State<EmployeeListView> {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  AddEditEmployeeView(employee: employee),
+                                  AddEditEmployeeView(employee: employee, index: mappedIndex,),
                             ),
                           );
                         },

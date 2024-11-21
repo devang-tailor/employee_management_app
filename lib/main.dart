@@ -5,7 +5,9 @@ import 'viewmodels/employee_cubit.dart';
 import 'services/database_service.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+ main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await DatabaseService().init();
   runApp(MyApp());
 }
 

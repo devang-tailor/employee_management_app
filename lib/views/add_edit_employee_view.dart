@@ -1,15 +1,18 @@
 import 'package:employee_management_app/constants/string_constants.dart';
-import 'package:employee_management_app/models/employee_model.dart';
+import 'package:employee_management_app/models/employee_adapter.dart';
+
 import 'package:employee_management_app/viewmodels/employee_cubit.dart';
 import 'package:employee_management_app/views/widegt/custom_date_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+
 class AddEditEmployeeView extends StatefulWidget {
   final Employee? employee;
+  final int? index;
 
-  AddEditEmployeeView({this.employee});
+  const AddEditEmployeeView({this.employee, this.index});
 
   @override
   _AddEditEmployeeViewState createState() => _AddEditEmployeeViewState();
@@ -21,13 +24,15 @@ class _AddEditEmployeeViewState extends State<AddEditEmployeeView> {
   final _roleController = TextEditingController();
   DateTime _startDate = DateTime.now();
   DateTime? _endDate; // Optional end date
-
   final List<String> roles = [
     'Product Designer',
     'Flutter Developer',
     'QA Tester',
     'Product Owner',
   ];
+
+
+
 
   @override
   void initState() {
@@ -319,20 +324,27 @@ class _AddEditEmployeeViewState extends State<AddEditEmployeeView> {
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   if (widget.employee != null) {
+                    print('update call');
                     // Update existing employee
-                    context.read<EmployeeCubit>().updateEmployee(
-                      Employee(
-                        id: widget.employee!.id,
-                        name: _nameController.text,
-                        role: _roleController.text,
-                        startDate: _startDate,
-                        endDate: _endDate, // Include end date
-                      ),
-                    );
+                    if(widget.index != null && (widget.index?.toString().isNotEmpty ?? false)){
+                      print('index not nul${widget.index}');
+                      context.read<EmployeeCubit>().updateEmployee( widget.index ?? -1,
+                        Employee(
+                          id: widget.employee!.id,
+                          name: _nameController.text,
+                          role: _roleController.text,
+                          startDate: _startDate,
+                          endDate: _endDate, // Include end date
+                        ),
+                      );
+                    }
+
                   } else {
+                    print('not update');
                     // Add new employee
                     context.read<EmployeeCubit>().addEmployee(
                       Employee(
+                        id: 0,
                         name: _nameController.text,
                         role: _roleController.text,
                         startDate: _startDate,

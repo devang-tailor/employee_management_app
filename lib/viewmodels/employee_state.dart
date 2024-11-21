@@ -1,7 +1,9 @@
 // lib/viewmodels/employee_state.dart
 
+
+import 'package:employee_management_app/models/employee_adapter.dart';
 import 'package:equatable/equatable.dart';
-import '../models/employee_model.dart';
+
 
 abstract class EmployeeState extends Equatable {
   @override
